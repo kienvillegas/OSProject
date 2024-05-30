@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const quantumTime = document.getElementById("quantumTime");
 
   btnNumProcess.addEventListener("click", function () {
-    numProcessContainer.style.display = "none";
     burstTimeContainer.innerHTML = "";
 
     let numProcessVal = parseInt(numProcess.value);
@@ -21,6 +20,8 @@ document.addEventListener("DOMContentLoaded", function () {
       alert("Please enter a valid number for quantum time");
       return;
     }
+
+    numProcessContainer.style.display = "none";
 
     let burstTimes = [];
 
@@ -53,7 +54,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
     burstTimeBtn.addEventListener("click", function () {
       displayContainer.innerHTML = "";
-      burstTimeContainer.style.display = "none";
 
       let table = document.createElement("table");
       table.classList.add("table", "table-striped", "text-center");
@@ -84,6 +84,15 @@ document.addEventListener("DOMContentLoaded", function () {
       // Round Robin Scheduling Calculation
       let processes = [];
       for (let i = 0; i < numProcessVal; i++) {
+        if (
+          isNaN(burstTimes[i].value) ||
+          burstTimes[i].value <= 0 ||
+          burstTimes[i].value == ""
+        ) {
+          alert("Please enter a valid number for quantum time");
+          return;
+        }
+
         processes.push({
           process: i + 1,
           arrivalTime: i, // Set arrival time sequentially from 0
@@ -165,6 +174,8 @@ document.addEventListener("DOMContentLoaded", function () {
 
       console.log(totalWaitingTime);
       console.log(numProcessVal);
+
+      burstTimeContainer.style.display = "none";
 
       processes.forEach((process) => {
         let row = document.createElement("tr");
