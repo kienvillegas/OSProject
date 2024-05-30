@@ -9,23 +9,48 @@ document.addEventListener("DOMContentLoaded", function () {
   const displayContainer = document.querySelector(".display_container");
   const quantumTime = document.getElementById("quantumTime");
 
-  btnNumProcess.addEventListener("click", function () {
-    arrivalTimeContainer.innerHTML = "";
+  function preventDecimal(event) {
+    if (event.key === "." || event.key === "," || event.key === "e") {
+      event.preventDefault();
+    }
+  }
 
+  document
+    .getElementById("numProcess")
+    .addEventListener("keydown", preventDecimal);
+  document
+    .getElementById("quantumTime")
+    .addEventListener("keydown", preventDecimal);
+
+  btnNumProcess.addEventListener("click", function () {
     let numProcessVal = parseInt(numProcess.value);
     let quantumTimeVal = parseInt(quantumTime.value);
+
     if (isNaN(numProcessVal) || numProcessVal <= 0) {
       alert("Please enter a valid number of processes.");
       return;
     }
+
+    if (numProcessVal > 10) {
+      alert("Maximum of 10 processes only!");
+      return;
+    }
+
     if (isNaN(quantumTimeVal) || quantumTimeVal <= 0) {
       alert("Please enter a valid number for quantum time");
       return;
     }
+
+    if (quantumTimeVal > 5) {
+      alert("Maximum of 5 quantum time!");
+      return;
+    }
+
     let burstTimes = [];
     let arrivalTimes = [];
     let arrivalTimeDiv = document.createElement("div");
     arrivalTimeDiv.classList.add("process", "d-flex", "flex-column", "mb-3");
+
     for (let i = 1; i <= numProcessVal; i++) {
       let arrivalLabel = document.createElement("label");
       arrivalLabel.setAttribute("for", "arrivalTime" + i);
@@ -36,24 +61,43 @@ document.addEventListener("DOMContentLoaded", function () {
       arrivalInput.id = "arrivalTime" + i;
       arrivalInput.name = "arrivalTime" + i;
       arrivalInput.min = "0";
+      arrivalInput.max = "10";
+      arrivalInput.step = "1";
       arrivalInput.required = true;
       arrivalInput.classList.add("form-control", "mb-2");
+      arrivalInput.addEventListener("keydown", preventDecimal);
+
       arrivalTimeDiv.appendChild(arrivalLabel);
       arrivalTimeDiv.appendChild(arrivalInput);
       numProcessContainer.style.display = "none";
       arrivalTimes.push(arrivalInput);
     }
+
     let arrivalTimeBtn = document.createElement("button");
     arrivalTimeBtn.setAttribute("id", "arrivalTimeBtn");
     arrivalTimeBtn.textContent = "Submit";
     arrivalTimeBtn.classList.add("btn", "btn-primary", "mt-2");
     arrivalTimeDiv.appendChild(arrivalTimeBtn);
     arrivalTimeContainer.appendChild(arrivalTimeDiv);
+
     let burstTimeDiv = document.createElement("div");
     burstTimeDiv.classList.add("process", "d-flex", "flex-column", "mb-3");
+
     arrivalTimeBtn.addEventListener("click", function () {
-      burstTimeContainer.innerHTML = "";
+      for (let arrival of arrivalTimes) {
+        if (
+          isNaN(arrival.value) ||
+          arrival.value < 0 ||
+          arrival.value > 10 ||
+          arrival.value == ""
+        ) {
+          alert("Please enter a valid number from 0 to 10");
+          return;
+        }
+      }
+
       arrivalTimeContainer.style.display = "none";
+
       for (let i = 1; i <= numProcessVal; i++) {
         let burstTimeLabel = document.createElement("label");
         burstTimeLabel.setAttribute("for", "burstTime" + i);
@@ -63,9 +107,14 @@ document.addEventListener("DOMContentLoaded", function () {
         burstTimeInput.type = "number";
         burstTimeInput.id = "burstTime" + i;
         burstTimeInput.name = "burstTime" + i;
-        burstTimeInput.min = "0";
+        burstTimeInput.min = "1";
+        burstTimeInput.max = "20";
+        burstTimeInput.step = "1";
         burstTimeInput.required = true;
         burstTimeInput.classList.add("form-control", "mb-2");
+
+        burstTimeInput.addEventListener("keydown", preventDecimal);
+
         burstTimeDiv.appendChild(burstTimeLabel);
         burstTimeDiv.appendChild(burstTimeInput);
         numProcessContainer.style.display = "none";
@@ -77,22 +126,25 @@ document.addEventListener("DOMContentLoaded", function () {
       burstTimeBtn.classList.add("btn", "btn-primary", "mt-2");
 
       burstTimeBtn.addEventListener("click", function () {
-        console.log("Button clicked!"); // Log that the button is clicked
+        for (let burst of burstTimes) {
+          if (
+            isNaN(burst.value) ||
+            burst.value < 0 ||
+            burst.value > 20 ||
+            burst.value == ""
+          ) {
+            alert("Please enter a valid number from 1 to 20");
+            return;
+          }
+        }
 
-        displayContainer.innerHTML = "";
         burstTimeContainer.style.display = "none";
-        console.log(
-          "Display container cleared and burst time container hidden."
-        );
 
         let table = document.createElement("table");
-        table.classList.add("table", "table-striped", "text-center"); // Add the text-center class
-        console.log("Table element created.");
         table.classList.add("table", "table-striped", "text-center");
 
         let thead = document.createElement("thead");
         let headerRow = document.createElement("tr");
-        console.log("Table header row created.");
 
         let headers = [
           "Process",
@@ -108,14 +160,11 @@ document.addEventListener("DOMContentLoaded", function () {
           th.textContent = headerText;
           headerRow.appendChild(th);
         });
-        console.log("Table headers created and added to header row.");
 
         thead.appendChild(headerRow);
         table.appendChild(thead);
-        console.log("Header row added to the table.");
 
         let tbody = document.createElement("tbody");
-        console.log("Table body created.");
 
         // Round Robin Scheduling Calculation
         let processes = [];
@@ -130,9 +179,6 @@ document.addEventListener("DOMContentLoaded", function () {
             waitingTime: 0,
           });
         }
-        console.log(
-          "Processes initialized with arrival time, burst time, etc."
-        );
 
         let currentTime = 0;
         let queue = [];
@@ -142,18 +188,12 @@ document.addEventListener("DOMContentLoaded", function () {
         processes.forEach((process) => {
           if (process.arrivalTime <= currentTime) {
             queue.push(process);
-            console.log(
-              `Process ${process.process} added to the initial queue.`
-            );
           }
         });
 
         while (completedProcesses < numProcessVal) {
           if (queue.length === 0) {
             currentTime++;
-            console.log(
-              "No processes in the queue. Incrementing current time."
-            );
             // Check if new processes have arrived and add them to the queue
             processes.forEach((process) => {
               if (
@@ -162,14 +202,12 @@ document.addEventListener("DOMContentLoaded", function () {
                 !queue.includes(process)
               ) {
                 queue.push(process);
-                console.log(`Process ${process.process} added to the queue.`);
               }
             });
             continue;
           }
 
           let currentProcess = queue.shift();
-          console.log(`Processing current process ${currentProcess.process}.`);
 
           let timeSlice = Math.min(
             currentProcess.remainingTime,
@@ -177,17 +215,11 @@ document.addEventListener("DOMContentLoaded", function () {
           );
           currentProcess.remainingTime -= timeSlice;
           currentTime += timeSlice;
-          console.log(
-            `Time slice for current process: ${timeSlice}. Current time: ${currentTime}.`
-          );
 
           // Update completion time if process is finished
           if (currentProcess.remainingTime === 0) {
             currentProcess.completionTime = currentTime;
             completedProcesses++;
-            console.log(
-              `Process ${currentProcess.process} completed. Completion time: ${currentTime}.`
-            );
           }
 
           // Add any new processes that have arrived to the queue
@@ -199,16 +231,12 @@ document.addEventListener("DOMContentLoaded", function () {
               process !== currentProcess
             ) {
               queue.push(process);
-              console.log(`Process ${process.process} added to the queue.`);
             }
           });
 
           // Re-add the current process to the queue if it's not finished
           if (currentProcess.remainingTime > 0) {
             queue.push(currentProcess);
-            console.log(
-              `Process ${currentProcess.process} not completed. Re-added to the queue.`
-            );
           }
         }
 
@@ -225,13 +253,9 @@ document.addEventListener("DOMContentLoaded", function () {
           totalWaitingTime += process.waitingTime;
           totalCompletionTime += process.completionTime;
         });
-        console.log(
-          "Turnaround times and waiting times calculated for all processes."
-        );
 
         processes.forEach((process) => {
           let row = document.createElement("tr");
-          console.log(`Creating row for process ${process.process}.`);
 
           let processCell = document.createElement("td");
           processCell.textContent = `Process ${process.process}`;
@@ -253,16 +277,10 @@ document.addEventListener("DOMContentLoaded", function () {
           row.appendChild(waitingTimeCell);
 
           tbody.appendChild(row);
-          console.log(
-            `Row for process ${process.process} created and added to the table body.`
-          );
         });
 
         table.appendChild(tbody);
         displayContainer.appendChild(table);
-        console.log(
-          "Table body appended to the table. Table appended to display container."
-        );
 
         // Calculate averages
         let avgCompletionTime = totalCompletionTime / numProcessVal;

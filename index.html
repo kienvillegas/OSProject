@@ -19,6 +19,11 @@
         <p>Enter Number of Processes:</p>
         <input
           type="number"
+          step="1"
+          min="1"
+          max="10"
+          inputmode="numeric"
+          pattern="\d*"
           class="form-control mb-2"
           required
           id="numProcess"
@@ -26,6 +31,11 @@
         <p>Enter Quantum Time:</p>
         <input
           type="number"
+          step="1"
+          min="1"
+          max="5"
+          pattern="\d*"
+          inputmode="numeric"
           class="form-control mb-2"
           required
           id="quantumTime"
