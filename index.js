@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", function () {
           burstTimes[i].value <= 0 ||
           burstTimes[i].value == ""
         ) {
-          alert("Please enter a valid number for quantum time");
+          alert("Please enter a valid number for burst time");
           return;
         }
 
