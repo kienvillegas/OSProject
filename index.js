@@ -129,7 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
         for (let burst of burstTimes) {
           if (
             isNaN(burst.value) ||
-            burst.value < 0 ||
+            burst.value <= 0 ||
             burst.value > 20 ||
             burst.value == ""
           ) {
